@@ -5,3 +5,4 @@ LittleKnowledge.sln
 obj/
 Temp/
 Assembly-CSharp.csproj
+.vs/
