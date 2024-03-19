@@ -1,0 +1,81 @@
+//Each #kernel tells which function to compile; you can have many kernels
+#pragma kernel Main
+
+
+//function prototypes
+float CalculateVoxel(int3 coordinate);
+
+
+//properties
+int3 resolution;
+int kernelExtents;
+Buffer<float> kernel;
+Buffer<float> heatsIn;
+RWBuffer<float> heatsOut;
+
+
+#pragma multi_compile Axis_Pass_X Axis_Pass_Y Axis_Pass_Z
+
+//main funtion
+[numthreads(8,8,8)]
+void Main (uint3 id : SV_DispatchThreadID)
+{
+    int3 boundsMin = (int3)id * 8;
+    int3 boundsMax = min(boundsMin + float3(8, 8, 8), resolution);
+
+    int3 position;
+    int3 index3;
+    for (position.z = boundsMin.z; position.z < boundsMax.z; position.z ++)
+    {
+        index3.z = position.z * resolution.y * resolution.x;
+        for (position.y = boundsMin.y; position.y < boundsMax.y; position.y ++)
+        {
+            index3.y = position.y * resolution.x;
+            for (position.x = boundsMin.x; position.x < boundsMax.x; position.x ++)
+            {
+                index3.x = position.x;
+
+                int index = index3.x + index3.y + index3.z;
+                heatsOut[index] = CalculateVoxel(position);
+            }
+        }
+    }
+}
+
+
+float CalculateVoxel(int3 position)
+{
+    //position: the center of the kernel
+    float heat = 0.0f;
+    int boundsMin = 0;
+    int boundsMax = 0;
+#if Axis_Pass_X
+    boundsMin = max(-kernelExtents, -position.x);
+    boundsMax = min(kernelExtents, (resolution.x - 1) - position.x);
+#elif Axis_Pass_Y
+    boundsMin = max(-kernelExtents, -position.y);
+    boundsMax = min(kernelExtents, (resolution.y - 1) - position.y);
+#elif Axis_Pass_Z
+    boundsMin = max(-kernelExtents, -position.z);
+    boundsMax = min(kernelExtents, (resolution.z - 1) - position.z);
+#endif
+    int offset; //the offset from the center
+    int offsetIndex; //index of the offset in the kernel
+    int offsetPositionIndex = 0.0f; //index of the offsetPosition
+
+    for (offset = boundsMin; offset <= boundsMax; offset ++)
+    {
+        offsetIndex = abs(offset);
+#if Axis_Pass_X
+        offsetPositionIndex = (resolution.x * ((resolution.y * position.z) + position.y)) + (position.x + offset);
+#elif Axis_Pass_Y
+        offsetPositionIndex = (resolution.x * ((resolution.y * position.z) + (position.y + offset))) + position.x;
+#elif Axis_Pass_Z
+        offsetPositionIndex = (resolution.x * ((resolution.y * (position.z + offset)) + position.y)) + position.x;
+#endif
+
+        heat += heatsIn[offsetPositionIndex] * kernel[offsetIndex];
+    }
+
+    return heat;
+}
