@@ -1,0 +1,9 @@
+Library/
+Logs/
+LittleKnowledge.sln
+.vsconfig
+obj/
+Temp/
+Assembly-CSharp.csproj
+.vs/
+Assembly-CSharp-Editor.csproj
