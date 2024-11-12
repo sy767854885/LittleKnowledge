@@ -15,13 +15,6 @@ public class TouchCameraController : MonoBehaviour
     // 摄像机的旋转速度
     public float rotationSpeed = 0.2f;
 
-    // 摄像机前进的最大距离
-    public float maxForwardDistance = 100f;
-
-    // 摄像机后退的最小距离
-    public float minBackwardDistance = 1f;
-
-
 
     // 每帧更新摄像机的移动和旋转
     void Update()
