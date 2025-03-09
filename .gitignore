@@ -9,3 +9,4 @@ Assembly-CSharp.csproj
 Assembly-CSharp-Editor.csproj
 unity.webp.csproj
 WebP.Editor.csproj
+.vscode/
