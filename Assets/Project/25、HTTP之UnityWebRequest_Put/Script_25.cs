@@ -4,35 +4,40 @@ using System.Text;
 using UnityEngine;
 using UnityEngine.Networking;
 
-public class Script_24 : MonoBehaviour
+public class Script_25 : MonoBehaviour
 {
     // Start is called before the first frame update
     void Start()
     {
-        StartCoroutine(PostRequestHTTP());
+        StartCoroutine(PutRequestHTTP());
     }
+
     /// <summary>
-    /// POST 请求示例
+    /// PUT 请求示例
     /// </summary>
-    IEnumerator PostRequestHTTP()
+    IEnumerator PutRequestHTTP()
     {
-        string url = "https://reqres.in/api/register";
+        string url = "https://reqres.in/api/users/2"; // 
 
         // 准备要发送的 JSON 数据
-        string json = "{\"email\": \"eve.holt@reqres.in\", \"password\": \"pistol\"}";
+        string json = "{\"name\": \"ddmz\", \"job\": \"gamer\"}";
         byte[] body = Encoding.UTF8.GetBytes(json);
-        //创建Post请求
-        UnityWebRequest request = new UnityWebRequest(url, "POST");
+
+        // 创建 PUT 请求
+        UnityWebRequest request = new UnityWebRequest(url, "PUT");
+
         // 设置请求体和处理器
         request.uploadHandler = new UploadHandlerRaw(body);
         request.downloadHandler = new DownloadHandlerBuffer();
+
         // 设置请求头
         request.SetRequestHeader("Content-Type", "application/json");
         request.SetRequestHeader("accept", "application/json");
-        //https://reqres.in/的专有秘钥
-        request.SetRequestHeader("x-api-key", "reqres-free-v1");
+        request.SetRequestHeader("x-api-key", "reqres-free-v1"); // 示例 API Key
+
         // 设置超时时间（秒）
         request.timeout = 10;
+
         // 发送请求
         yield return request.SendWebRequest();
 
@@ -42,7 +47,7 @@ public class Script_24 : MonoBehaviour
         // 判断请求结果
         if (request.result == UnityWebRequest.Result.Success)
         {
-            Debug.Log("POST 请求成功：" + request.downloadHandler.text);
+            Debug.Log("PUT 请求成功：" + request.downloadHandler.text);
         }
         else if (request.result == UnityWebRequest.Result.ConnectionError && request.error.ToLower().Contains("timeout"))
         {
@@ -50,7 +55,9 @@ public class Script_24 : MonoBehaviour
         }
         else
         {
-            Debug.LogError("POST 请求失败：" + request.error);
+            Debug.LogError("PUT 请求失败：" + request.error);
         }
     }
+
+
 }
